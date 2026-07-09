@@ -1,6 +1,6 @@
 import pytest
 
-from app.calculator import add, subtract, multiply, divide, power
+from app.calculator import add, divide, multiply, power, subtract
 
 
 def test_add_two_positive_numbers():

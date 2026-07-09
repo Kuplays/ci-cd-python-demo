@@ -18,4 +18,4 @@ def divide(a: int, b: int) -> float:
 
 
 def power(a: int, b: int) -> int:
-    return a ** b
+    return a**b
