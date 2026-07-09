@@ -31,7 +31,7 @@ jobs:
               run: black --check .
             
             - name: Run tests
-              run: pytest --junitxml=reports/junit.xml
+              run: pytest --junitxml=reports/junit.xml --alluredir=allure-results --clean-alluredir
 
             - name: Upload pytest report
               if: always()
@@ -39,3 +39,10 @@ jobs:
               with: 
                 name: pytest-report
                 path: reports/
+            
+            - name: Upload Allure results
+              if: always()
+              uses: actions/upload-artifact@v6
+              with:
+                name: allure-results
+                path: allure-results/
