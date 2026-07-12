@@ -97,4 +97,4 @@ jobs:
       steps:
         - name: Deploy Allure report to GH Pages
           id: deployment
-          uses: actions/deploy-pages@b4
+          uses: actions/deploy-pages@v4
