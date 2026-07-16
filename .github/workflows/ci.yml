@@ -4,6 +4,24 @@ on:
   push:
         branches: [main]
   pull_request:
+  
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: "Test suite to run"
+        required: true
+        default: "unit"
+        type: choice
+        options:
+          - unit
+          - smoke
+          - full
+      
+      publish_report:
+        description: "Publish Allure report to GH"
+        required: true
+        default: true
+        type: boolean
 
 permissions:
   contents: read
@@ -11,7 +29,18 @@ permissions:
   id-token: write
 
 jobs:
+  run-info:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print run params
+        run: |
+              echo "Event name ${{ github.event_name }}"
+              echo "Suite: ${{ inputs.suite }}"
+              echo "Publish report: ${{ inputs.publish_report }}"
+
   lint:
+    needs: run-info
     runs-on: ubuntu-latest
 
     steps:
@@ -60,7 +89,13 @@ jobs:
               pip install -r requirements-dev.txt
             
       - name: Run tests
-        run: pytest --junitxml=reports/junit.xml --alluredir=allure-results --clean-alluredir
+        run: |
+              if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+                echo "Manual run selected suite: ${{ inputs.suite }}"
+              else
+                echo "Auto run, default: full"
+              fi
+              pytest --junitxml=reports/junit.xml --alluredir=allure-results --clean-alluredir
 
       - name: Upload pytest report
         if: always()
@@ -115,14 +150,14 @@ jobs:
           path: allure-report/
             
       - name: Upload Github Pages artifact
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && (github.event_name != 'workflow_dispatch' || inputs.publish_report)
         uses: actions/upload-pages-artifact@v5
         with:
           path: allure-report
 
   deploy-pages:
     needs: allure-report
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && (github.event_name != 'workflow_dispatch' || inputs.publish_report)
     runs-on: ubuntu-latest
 
     environment:
