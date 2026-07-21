@@ -88,14 +88,30 @@ jobs:
               python -m pip install --upgrade pip
               pip install -r requirements-dev.txt
             
-      - name: Run tests
+      - name: Run selected  tests
         run: |
               if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
                 echo "Manual run selected suite: ${{ inputs.suite }}"
+
+                case "${{ inputs.suite }}" in 
+                  unit)
+                    TEST_PATH="tests/unit"
+                    ;;
+                  smoke)
+                    TEST_PATH="tests/smoke"
+                    ;;
+                  *)
+                    echo "Unknown test suite: ${{ inputs.suite }}"
+                    exit 1
+                    ;;
+                esac
               else
                 echo "Auto run, default: full"
+                TEST_PATH="tests"
               fi
-              pytest --junitxml=reports/junit.xml --alluredir=allure-results --clean-alluredir
+
+              echo "Running pytest: ${TEST_PATH}"
+              pytest "${TEST_PATH}" --junitxml=reports/junit.xml --alluredir=allure-results --clean-alluredir
 
       - name: Upload pytest report
         if: always()
