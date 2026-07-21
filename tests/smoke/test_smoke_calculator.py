@@ -9,10 +9,10 @@ from app.calculator import add, divide, multiply, subtract
 def test_basic_operations():
     with allure.step("Check addition"):
         assert add(5, 5) == 10
-    
+
     with allure.step("Check subtraction"):
         assert subtract(5, 5) == 0
-    
+
     with allure.step("Check multiply"):
         assert multiply(5, 5) == 25
 
